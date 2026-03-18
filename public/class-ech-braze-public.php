@@ -150,8 +150,8 @@ class Ech_Braze_Public
             const getCreateDate = () => {
                 const today = new Date();
                 return today.getFullYear() + '-' + 
-                  String(today.getMonth() + 1).padStart(2, '0') + '-' + 
-                  String(today.getDate()).padStart(2, '0');
+                    String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                    String(today.getDate()).padStart(2, '0');
             };
 
             $('a[data-btn="whatsapp"]').on('click', function() {
@@ -159,21 +159,21 @@ class Ech_Braze_Public
                 try {
 
                     const urlObj = new URL(wtsUrl),
-													params = new URLSearchParams(urlObj.search);
+						params = new URLSearchParams(urlObj.search);
 
-										const brazePayload = {
-											'destination_url': wtsUrl,
-                      'current_page': window.location.href,
-                      'whatsapp_phone': params.get('phone') || '',
-                      'whatsapp_text': params.get('text') || '',
-                      'business_name': '<?php echo $business_name; ?>',
-                      'create_date': getCreateDate()
-										};
+					const brazePayload = {
+                        'destination_url': wtsUrl,
+                        'current_page': window.location.href,
+                        'whatsapp_phone': params.get('phone') || '',
+                        'whatsapp_text': params.get('text') || '',
+                        'business_name': '<?php echo $business_name; ?>',
+                        'create_date': getCreateDate()
+					};
 
                     window.braze.logCustomEvent('whatsapp_click', brazePayload);
 
                     window.braze.requestImmediateDataFlush();
-										console.log("Braze: WhatsApp Click Sent", brazePayload);
+					console.log("Braze: WhatsApp Click Sent", brazePayload);
                 } catch (e) { console.error("Braze Error:", e); }
             });
 
@@ -190,25 +190,24 @@ class Ech_Braze_Public
                     }
                 });
 
-								const telPrefix = (formData.telPrefix || "").replace('+', '');
-								const externalID = telPrefix + (formData.tel || "");	
+				const externalID = (formData.telPrefix || '+852') + (formData.tel || '');	
                 if (externalID) {
                     window.braze.changeUser(externalID);
                 }
-								const brazePayload = {
-									'dbricks_form_type': 'lead_form',
-									'page_url': window.location.href,
-									'last_name': formData.last_name || '',
-									'first_name': formData.first_name || '',
-									'tel': formData.tel || '',
-									'email': formData.email || '',
-									'booking_date': formData.booking_date || '',
-									'booking_time': formData.booking_time || '',
-									'shop': formData.shop || "",
-									'item': items.join(', '),
-									'info_remark': formData['info_remark[]'] || '',
-									'create_date': getCreateDate()
-								};
+				const brazePayload = {
+					'dbricks_form_type': 'lead_form',
+					'page_url': window.location.href,
+					'last_name': formData.last_name || '',
+					'first_name': formData.first_name || '',
+					'tel': externalID,
+					'email': formData.email || '',
+					'booking_date': formData.booking_date || '',
+					'booking_time': formData.booking_time || '',
+					'shop': formData.shop || "",
+					'item': items.join(', '),
+					'info_remark': formData['info_remark[]'] || '',
+					'create_date': getCreateDate()
+				};
                 window.braze.logCustomEvent('lead_form_submit', brazePayload);
 
                 window.braze.requestImmediateDataFlush();
