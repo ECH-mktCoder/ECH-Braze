@@ -190,7 +190,7 @@ class Ech_Braze_Public
                     }
                 });
 
-				const externalID = (formData.telPrefix || '+852') + (formData.tel || '');	
+				const externalID = (formData.telPrefix || '') + (formData.tel || '');	
                 if (externalID) {
                     window.braze.changeUser(externalID);
                 }
@@ -209,7 +209,7 @@ class Ech_Braze_Public
 					'create_date': getCreateDate()
 				};
                 window.braze.logCustomEvent('lead_form_submit', brazePayload);
-
+                // console.log("Braze: Lead Form Submitted", brazePayload);
                 window.braze.requestImmediateDataFlush();
             });
         });
