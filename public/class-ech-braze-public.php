@@ -178,6 +178,11 @@ class Ech_Braze_Public
             });
 
             $('form.ech_lfg_form').on('submit', function() {
+                if (!this.checkValidity()) {
+                    return; 
+                }
+                console.log("Braze: Lead Form");
+
                 const rawData = $(this).serializeArray();
                 const formData = {};
                 const items = [];
@@ -190,9 +195,16 @@ class Ech_Braze_Public
                     }
                 });
 
-				const externalID = (formData.telPrefix || '') + (formData.tel || '');	
+                const externalID = (formData.telPrefix || '') + (formData.tel || '');
                 if (externalID) {
                     window.braze.changeUser(externalID);
+                    const user = window.braze.getUser();
+                    if (formData.first_name) user.setFirstName(formData.first_name);
+                    if (formData.last_name) user.setLastName(formData.last_name);
+                    if (formData.email && formData.email.includes('@')) {
+                        user.setEmail(formData.email);
+                    }
+                    user.setPhoneNumber(externalID);
                 }
 				const brazePayload = {
 					'dbricks_form_type': 'lead_form',
@@ -206,10 +218,10 @@ class Ech_Braze_Public
 					'shop': formData.shop || "",
 					'item': items.join(', '),
 					'info_remark': formData['info_remark[]'] || '',
-					'create_date': getCreateDate()
+					'create_date': getCreateDate(),
 				};
                 window.braze.logCustomEvent('lead_form_submit', brazePayload);
-                // console.log("Braze: Lead Form Submitted", brazePayload);
+                console.log("Braze: Lead Form Submitted", brazePayload);
                 window.braze.requestImmediateDataFlush();
             });
         });
