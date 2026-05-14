@@ -99,7 +99,12 @@ class Ech_Braze_Public
          * class.
          */
 
-        wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/ech-braze-public.js', [ 'jquery' ], $this->version, false);
+        wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/ech-braze-public.js', [ 'jquery' ], $this->version, true);
+
+        wp_localize_script($this->plugin_name, 'ech_braze_obj', array(
+            'business_name' => get_option('ech_braze_website_brand_name', ''),
+            'ajax_url'      => admin_url('admin-ajax.php'),
+        ));
 
     }
 
@@ -134,102 +139,5 @@ class Ech_Braze_Public
 		</script>
 		<?php
     }
-
-    public function braze_tracking_script()
-    {
-        $business_name = get_option('ech_braze_website_brand_name');
-        ?>
-		<script>
-    (function($) {
-        "use strict";
-
-        $(document).ready(function() {
-            const brazeEnabled = window.braze !== undefined;
-            if (!brazeEnabled) return;
-
-            const getCreateDate = () => {
-                const today = new Date();
-                return today.getFullYear() + '-' + 
-                    String(today.getMonth() + 1).padStart(2, '0') + '-' + 
-                    String(today.getDate()).padStart(2, '0');
-            };
-
-            $('a[data-btn="whatsapp"]').on('click', function() {
-                const wtsUrl = $(this).attr('href');
-                try {
-
-                    const urlObj = new URL(wtsUrl),
-						params = new URLSearchParams(urlObj.search);
-
-					const brazePayload = {
-                        'destination_url': wtsUrl,
-                        'current_page': window.location.href,
-                        'whatsapp_phone': params.get('phone') || '',
-                        'whatsapp_text': params.get('text') || '',
-                        'business_name': '<?php echo $business_name; ?>',
-                        'create_date': getCreateDate()
-					};
-
-                    window.braze.logCustomEvent('whatsapp_click', brazePayload);
-
-                    window.braze.requestImmediateDataFlush();
-					console.log("Braze: WhatsApp Click Sent", brazePayload);
-                } catch (e) { console.error("Braze Error:", e); }
-            });
-
-            $('form.ech_lfg_form').on('submit', function() {
-                if (!this.checkValidity()) {
-                    return; 
-                }
-                console.log("Braze: Lead Form");
-
-                const rawData = $(this).serializeArray();
-                const formData = {};
-                const items = [];
-
-                rawData.forEach(field => {
-                    if (field.name === 'item') {
-                        items.push(field.value);
-                    } else {
-                        formData[field.name] = field.value;
-                    }
-                });
-
-                const externalID = (formData.telPrefix || '') + (formData.tel || '');
-                if (externalID) {
-                    window.braze.changeUser(externalID);
-                    const user = window.braze.getUser();
-                    if (formData.first_name) user.setFirstName(formData.first_name);
-                    if (formData.last_name) user.setLastName(formData.last_name);
-                    if (formData.email && formData.email.includes('@')) {
-                        user.setEmail(formData.email);
-                    }
-                    user.setPhoneNumber(externalID);
-                }
-				const brazePayload = {
-					'dbricks_form_type': 'lead_form',
-					'page_url': window.location.href,
-					'last_name': formData.last_name || '',
-					'first_name': formData.first_name || '',
-					'tel': externalID,
-					'email': formData.email || '',
-					'booking_date': formData.booking_date || '',
-					'booking_time': formData.booking_time || '',
-					'shop': formData.shop || "",
-					'item': items.join(', '),
-					'info_remark': formData['info_remark[]'] || '',
-					'create_date': getCreateDate(),
-				};
-                window.braze.logCustomEvent('lead_form_submit', brazePayload);
-                console.log("Braze: Lead Form Submitted", brazePayload);
-                window.braze.requestImmediateDataFlush();
-            });
-        });
-    })(jQuery);
-    </script>
-		<?php
-    }
-
-
 
 }

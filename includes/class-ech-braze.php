@@ -183,7 +183,7 @@ class Ech_Braze {
 		$this->loader->add_action( 'wp_head', $plugin_public, 'initialize_Braze_SDK' );
 
 		// ^^^ add Braze tracking script
-		$this->loader->add_action( 'wp_footer', $plugin_public, 'braze_tracking_script' );
+		// $this->loader->add_action( 'wp_footer', $plugin_public, 'braze_tracking_script' );
 
 	}
 
