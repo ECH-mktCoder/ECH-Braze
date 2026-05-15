@@ -38,7 +38,7 @@
 				}
 
 				if (response && response.result === 0) {
-					console.log("Braze: MSP Success detected. Processing payload...");
+					// console.log("Braze: MSP Success detected. Processing payload...");
 
 					const rawData = $activeForm.serializeArray();
 					const formData = {};
@@ -83,7 +83,7 @@
 					// 正式發送事件給 Braze
 					window.braze.logCustomEvent('lead_form_submit', brazePayload);
 					window.braze.requestImmediateDataFlush();
-					console.log("Braze: Custom event 'lead_form_submit' sent.", brazePayload);
+					console.log("Braze: Custom event 'lead_form_submit' sent.");
 					$activeForm = null;
 				} else {
 					console.warn("Braze: API returned result != 0, skipping Braze tracking.");
@@ -113,7 +113,7 @@
 
 				window.braze.logCustomEvent('whatsapp_click', brazePayload);
 				window.braze.requestImmediateDataFlush();
-				console.log("Braze: WhatsApp Click Sent", brazePayload);
+				console.log("Braze: WhatsApp Click Sent");
 
 			} catch (e) {
 				console.error("Braze WhatsApp Error:", e);
